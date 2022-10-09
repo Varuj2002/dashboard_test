@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = '/register';
+const REGISTER_URL = 'http://localhost:4000/users/register';
 
 const Register = () => {
     const userRef = useRef();
@@ -26,6 +26,7 @@ const Register = () => {
 
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
+    const [email, setEmail] = useState('')
 
     useEffect(() => {
         userRef.current.focus();
@@ -49,13 +50,15 @@ const Register = () => {
         // if button enabled with JS hack
         const v1 = USER_REGEX.test(user);
         const v2 = PWD_REGEX.test(pwd);
+        console.log(email, user, 'ppppppp');
+        console.log(pwd, user, 'pwd');
         if (!v1 || !v2) {
             setErrMsg("Invalid Entry");
             return;
         }
         try {
             const response = await axios.post(REGISTER_URL,
-                JSON.stringify({ user, pwd }),
+                JSON.stringify({ name: 'ds', lastName: 'ppp', email: 'pppp@mm.oo', password: pwd, confirmPassword: pwd }),
                 {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: true
@@ -70,6 +73,7 @@ const Register = () => {
             setPwd('');
             setMatchPwd('');
         } catch (err) {
+            console.log(err, 'eeeeee');
             if (!err?.response) {
                 setErrMsg('No Server Response');
             } else if (err.response?.status === 409) {
@@ -119,7 +123,24 @@ const Register = () => {
                             Must begin with a letter.<br />
                             Letters, numbers, underscores, hyphens allowed.
                         </p>
-
+                        <label htmlFor="email">
+                        email:
+                            <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} />
+                            <FontAwesomeIcon icon={faTimes} className={validName || !user ? "hide" : "invalid"} />
+                        </label>
+                        <input
+                            type="text"
+                            id="email"
+                            ref={userRef}
+                            autoComplete="off"
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
+                            required
+                            aria-invalid={validName ? "false" : "true"}
+                            aria-describedby="uidnote"
+                            // onFocus={() => setUserFocus(true)}
+                            // onBlur={() => setUserFocus(false)}
+                        />
 
                         <label htmlFor="password">
                             Password:
