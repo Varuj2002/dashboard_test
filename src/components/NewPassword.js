@@ -11,18 +11,11 @@ const REGISTER_URL = 'http://localhost:3000/users/register';
 
 
 
-const Register = () => {
-    let REGEX_EMAIL = new RegExp('@[digitain]+\.[com]');
+const NewPassword = () => {
     const userRef = useRef();
     const errRef = useRef();
-    const [homeText, setHomeText] = useState('');
 
     const [user, setUser] = useState('');
-    const [lastname, setLastname] = useState('');
-    const [validName, setValidName] = useState(false);
-    const [validEmail, setValidEmail] = useState(false);
-    const [validLastName, setValidLastName] = useState(false);
-    const [userFocus, setUserFocus] = useState(false);
 
     const [pwd, setPwd] = useState('');
     const [validPwd, setValidPwd] = useState(false);
@@ -34,24 +27,10 @@ const Register = () => {
 
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
-    const [email, setEmail] = useState('')
-    const [openModal, setOpenModal] = useState(false)
 
     useEffect(() => {
         userRef.current.focus();
     }, [])
-
-    useEffect(() => {
-        setValidName(USER_REGEX.test(user));
-    }, [user])
-
-    useEffect(()=>{
-        setValidEmail(REGEX_EMAIL.test(email))
-    }, [email])
-
-    useEffect(() => {
-        setValidLastName(USER_REGEX.test(lastname));
-    }, [lastname])
 
     useEffect(() => {
         setValidPwd(PWD_REGEX.test(pwd));
@@ -73,16 +52,17 @@ const Register = () => {
         try {
             const response = await axios.post(REGISTER_URL,
                 JSON.stringify(
-                    { name: user, lastName: lastname, email, password: pwd},
+                    {password: pwd, email: JSON.parse(localStorage.getItem('changePasswordEmal'))},
                     ),
                 {
                     headers: { 'Content-Type': 'application/json' },
                     withCredentials: false
                 }
             );
+
             console.log(JSON.stringify(response?.data));
+            localStorage.removeItem('changePasswordEmal');
             setSuccess(true);
-            setUser('');
             setPwd('');
             setMatchPwd('');
         } catch (err) {
@@ -99,83 +79,18 @@ const Register = () => {
 
     return (
         <>
-        <ModalEmail setHomeText={setHomeText} openModal={openModal} email={email} setOpenModal={setOpenModal} />
             {success ? (
                 <section>
                     <h1>Success!</h1>
                     <div style={{display: 'flex', justifyContent:'center'}}>
-                    {!!homeText ? <Link to="/login">{homeText}</Link> : <button onClick={()=>{setOpenModal(true)}}>Write Code</button>}
+                    <Link to="/login">Singn In</Link>
                     </div>
                 </section>
             ) : (
                 <section>
                     <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-                    <h1>Register</h1>
+                    <h1>Change Password</h1>
                     <form onSubmit={handleSubmit}>
-                        <label htmlFor="username">
-                            User name:
-                            <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} />
-                            <FontAwesomeIcon icon={faTimes} className={validName || !user ? "hide" : "invalid"} />
-                        </label>
-                        <input
-                            type="text"
-                            id="username"
-                            ref={userRef}
-                            autoComplete="off"
-                            onChange={(e) => setUser(e.target.value)}
-                            value={user}
-                            required
-                            aria-invalid={validName ? "false" : "true"}
-                            aria-describedby="uidnote"
-                            onFocus={() => setUserFocus(true)}
-                            onBlur={() => setUserFocus(false)}
-                        />
-                        <label htmlFor="username">
-                            Last name:
-                            <FontAwesomeIcon icon={faCheck} className={validLastName ? "valid" : "hide"} />
-                            <FontAwesomeIcon icon={faTimes} className={validLastName || !lastname ? "hide" : "invalid"} />
-                        </label>
-                        <input
-                            type="text"
-                            id="lastname"
-                            ref={userRef}
-                            autoComplete="off"
-                            onChange={(e) => setLastname(e.target.value)}
-                            value={lastname}
-                            required
-                            aria-invalid={validName ? "false" : "true"}
-                            aria-describedby="uidnote"
-                            onFocus={() => setUserFocus(true)}
-                            onBlur={() => setUserFocus(false)}
-                        />
-                        {/* <p id="uidnote" className={userFocus && user && !validName ? "instructions" : "offscreen"}>
-                            <FontAwesomeIcon icon={faInfoCircle} />
-                            4 to 24 characters.<br />
-                            Must begin with a letter.<br />
-                            Letters, numbers, underscores, hyphens allowed.
-                        </p> */}
-                        <label htmlFor="email">
-                        Email:
-                            <FontAwesomeIcon icon={faCheck} className={validEmail ? "valid" : "hide"} />
-                            <FontAwesomeIcon icon={faTimes} className={validEmail || !email ? "hide" : "invalid"} />
-                        </label>
-                        <input
-                            type="text"
-                            id="email"
-                            ref={userRef}
-                            autoComplete="off"
-                            onChange={(e) => setEmail(e.target.value)}
-                            value={email}
-                            required
-                            aria-invalid={validName ? "false" : "true"}
-                            aria-describedby="uidnote"
-                            // onFocus={() => setUserFocus(true)}
-                            // onBlur={() => setUserFocus(false)}
-                        />
-                        <p id="pwdnote" className={"instructions"}>
-                            <FontAwesomeIcon icon={faInfoCircle} />
-                            Must ending @digitain.com.<br />
-                        </p>
                         <label htmlFor="password">
                             Password:
                             <FontAwesomeIcon icon={faCheck} className={validPwd ? "valid" : "hide"} />
@@ -221,18 +136,18 @@ const Register = () => {
                             Must match the first password input field.
                         </p> */}
 
-                        <button disabled={!validName || !validLastName || !validEmail || !validPwd || !validMatch ? true : false}>Sign Up</button>
+                        <button disabled={!validPwd || !validMatch ? true : false}>Change Password</button>
                     </form>
-                    <p>
+                    {/* <p>
                         Already registered?<br />
                         <span className="line">
                             <Link to="/">Sign In</Link>
                         </span>
-                    </p>
+                    </p> */}
                 </section>
             )}
         </>
     )
 }
 
-export default Register
+export default NewPassword

@@ -3,14 +3,14 @@ import useAuth from '../hooks/useAuth';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import axios from '../api/axios';
-const LOGIN_URL = '/auth';
+const LOGIN_URL = 'http://localhost:3000/users/login';
 
 const Login = () => {
     const { setAuth } = useAuth();
 
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
+    const from = location.state?.from?.pathname || "/table";
 
     const userRef = useRef();
     const errRef = useRef();
@@ -32,19 +32,18 @@ const Login = () => {
 
         try {
             const response = await axios.post(LOGIN_URL,
-                JSON.stringify({ user, pwd }),
+                JSON.stringify({ email: user, password : pwd }),
                 {
                     headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
+                    withCredentials: false
                 }
             );
             console.log(JSON.stringify(response?.data));
             const accessToken = response?.data?.accessToken;
-            const roles = response?.data?.roles;
-            setAuth({ user, pwd, roles, accessToken });
+            localStorage.setItem('accessToken', JSON.stringify(accessToken));
             setUser('');
             setPwd('');
-            navigate(from, { replace: true });
+            navigate("/table", { replace: true });
         } catch (err) {
             if (!err?.response) {
                 setErrMsg('No Server Response');
@@ -65,7 +64,7 @@ const Login = () => {
             <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
             <h1>Sign In</h1>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username:</label>
+                <label htmlFor="username">Email:</label>
                 <input
                     type="text"
                     id="username"
@@ -90,6 +89,11 @@ const Login = () => {
                 Need an Account?<br />
                 <span className="line">
                     <Link to="/register">Sign Up</Link>
+                </span>
+            </p>
+            <p>
+                <span className="line">
+                    <Link to="/forgotPassword">Forgot Password</Link>
                 </span>
             </p>
         </section>
