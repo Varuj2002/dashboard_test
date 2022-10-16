@@ -19,12 +19,7 @@ const ROLES = {
   'Admin': 5150
 }
 
-const isLogin = !!JSON.parse(localStorage.getItem('accessToken'));
-console.log(JSON.parse(localStorage.getItem('accessToken')), 'isLogin');
 function App() {
-
-
-  // if(isLogin){
     return( 
       <Routes>
     <Route path="/" element={<Layout />}>
@@ -44,15 +39,6 @@ function App() {
     </Route>
   </Routes>
     )
-  // }
-
-  // return (
-  //   <Routes>
-  //   <Route path="/" element={<Layout />}>
-  //     <Route path="*" element={<Login />} />
-  //   </Route>
-  // </Routes>
-  // );
 }
 
 export default App;

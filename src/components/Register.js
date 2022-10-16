@@ -7,7 +7,7 @@ import ModalEmail from "./Modal";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = 'http://localhost:3000/users/register';
+const REGISTER_URL = 'https://digitain-coffee-break.herokuapp.com/users/register';
 
 
 
@@ -76,11 +76,10 @@ const Register = () => {
                     { name: user, lastName: lastname, email, password: pwd},
                     ),
                 {
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
                     withCredentials: false
                 }
             );
-            console.log(JSON.stringify(response?.data));
             setSuccess(true);
             setUser('');
             setPwd('');

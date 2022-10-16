@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import ModalEmail from "./Modal";
 
 
-const REGISTER_URL = 'http://localhost:3000/users/forgot_password';
+const REGISTER_URL = 'https://digitain-coffee-break.herokuapp.com/users/forgot_password';
 
 
 
@@ -43,12 +43,11 @@ const ForgotPassword = () => {
                     {email},
                     ),
                 {
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
                     withCredentials: false
                 }
             );
             localStorage.setItem('changePasswordEmal', email);
-            console.log(JSON.stringify(response?.data));
             setSuccess(true);
         } catch (err) {
             if (!err?.response) {

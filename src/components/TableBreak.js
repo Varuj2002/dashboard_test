@@ -1,7 +1,7 @@
 import { Text } from '@mantine/core';
 import { DataTable } from 'mantine-datatable';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from '../api/axios';
 
 
@@ -33,16 +33,17 @@ export default function TableBreak() {
 
  
   const getUsersTable = () => {
-    axios.get(`http://localhost:3000/users/table`)
+    axios.get(`https://digitain-coffee-break.herokuapp.com/users/table`)
   .then(res => {
     const persons = res.data;
     setDat(persons)
-    console.log(persons,'persons');
   })
   }
  useEffect(()=>{
-  console.log(JSON.parse(localStorage.getItem('accessToken')));
-  setInterval(()=> getUsersTable(), 1000)
+  setInterval(()=>{
+    getUsersTable()
+    getCurrent()
+  } , 1000)
  }, [])
 
  const config = {
@@ -55,7 +56,7 @@ const bodyParameters = {
 
  const exhort = async () => {
   axios.post( 
-    'http://localhost:3000/users/dashboard/apply',
+    'https://digitain-coffee-break.herokuapp.com/users/dashboard/apply',
     bodyParameters,
     config
   )
@@ -63,19 +64,33 @@ const bodyParameters = {
     if(res.data === 'OK') getUsersTable()
   })
   .catch((err) => {
-    console.log(err, 'rrttt');
+    console.log(err, 'errgetUsersTable');
   })
 }
 
-const confirm = () => {
-  console.log("Confirm", 'Confirm');
+const confirmGoBreak = () => {
   axios.post( 
-    'http://localhost:3000/users/dashboard/approve',
+    'https://digitain-coffee-break.herokuapp.com/users/dashboard/go_break',
     bodyParameters,
     config
   )
   .then(res => {
     if(res.data === 'OK') getUsersTable()
+  })
+  .catch((err) => {
+    console.log(err, 'confirmGoBreakErr');
+  })
+}
+
+const confirmCancelBreak = () => {
+  axios.post( 
+    'https://digitain-coffee-break.herokuapp.com/users/dashboard/return_break',
+    bodyParameters,
+    config
+  )
+  .then(res => {
+    if(res.data === 'OK') getUsersTable()
+    cancel()
   })
   .catch((err) => {
     console.log(err, 'rrttt');
@@ -83,9 +98,8 @@ const confirm = () => {
 }
 
 const getCurrent = () => {
-  console.log("Confirm", 'Confirm');
   axios.post( 
-    'http://localhost:3000/users/current',
+    'https://digitain-coffee-break.herokuapp.com/users/current',
     bodyParameters,
     config
   )
@@ -108,7 +122,7 @@ useEffect(()=> {
 
 const cancel = () => {
   axios.post( 
-    'http://localhost:3000/users/dashboard/cancel',
+    'https://digitain-coffee-break.herokuapp.com/users/dashboard/cancel',
     bodyParameters,
     config
   )
@@ -127,12 +141,12 @@ const logOut = () => {
 }
 const adminApply = async (email) => {
   try {
-    const response = await axios.post('http://localhost:3000/users/dashboard/ready',
+    const response = await axios.post('https://digitain-coffee-break.herokuapp.com/users/dashboard/ready',
         JSON.stringify(
             {  email },
             ),
         {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
             withCredentials: false
         }
     );
@@ -144,8 +158,30 @@ const adminApply = async (email) => {
   }
 }
 
+const adminCancelReady = async (email) => {
+  try {
+    const response = await axios.post('https://digitain-coffee-break.herokuapp.com/users/dashboard/cancel_ready',
+        JSON.stringify(
+            {  email },
+            ),
+        {
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Credentials': true, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
+            withCredentials: false
+        }
+    );
+    getUsersTable()
+    console.log(JSON.stringify(response?.data));
+    
+} catch (err) {
+    
+  }
+}
+
+// /users/dashboard/cancel_ready
+
 const [message, setMessage] = useState('');
 const [isMessage, setIsMessage] = useState(true)
+const messageRef = useRef();
 
 useEffect(()=>{
   console.log(message, 'message');
@@ -159,7 +195,7 @@ useEffect(()=>{
 const sendMessage = () => {
   
   axios.post( 
-    'http://localhost:3000/users/message',
+    'https://digitain-coffee-break.herokuapp.com/users/message',
     {
       message
      },
@@ -169,6 +205,7 @@ const sendMessage = () => {
     if(res?.statusText === 'OK'){
       getUsersTable()
       setMessage('')
+      messageRef.current.value = ''
     }
   })
   .catch((err) => {
@@ -176,36 +213,38 @@ const sendMessage = () => {
   })
   console.log(message, 'message');
 }
-console.log('tableeeeeeeeeeeee');
-
+const  exhortDisabled = user?.data?.user?.state !== null;
+const cancelBreakDisabled = user?.data?.user?.state !== 'IN_BREAK';
+const goBreakDisabled = user?.data?.user?.state === 'WAITING' || user?.data?.user?.state === null || user?.data?.user?.state === 'IN_BREAK'
+console.log(user?.data?.user?.state,'tableeeeeeeeeeeee');
+  const isAdminOrYourMessage = user?.data?.user?.id === user?.data?.messageId?.userId || isAdmin
   if(isLogin){
     return (
       <>
-      <div style={{ position: 'absolute', top: 15, left: 15}}>
+      {!isAdmin && <div style={{ position: 'absolute', top: 15, left: 15}}>
           <p>Message</p>
           <div>
-          <textarea style={{resize: 'none'}} rows={4}
+          <textarea ref={messageRef} style={{resize: 'none'}} rows={4}
           cols={20} onChange={(e)=> setMessage(e.target.value)} ></textarea>
           </div>
         <button onClick={sendMessage} disabled={isMessage}>Send Message</button>
 
-        </div>
-
-      <div style={{ position: 'absolute', top: "10%", right: '15%'}}>
+        </div>}
+      {!isAdmin && <div style={{ position: 'absolute', top: "10%", right: '15%'}}>
         {user?.data?.user?.breakTime === 0 ? 
            <button onClick={exhort} style={{borderWidth: 0.1, backgroundColor: 'red', borderRadius: 0, color: 'white', marginRight: 15}}>
            Extra
          </button>
         :
-        <button onClick={exhort} style={{borderWidth: 0.1, backgroundColor: 'green', borderRadius: 0, color: 'white', marginRight: 15}}>
+        <button disabled={exhortDisabled} onClick={exhort} style={{borderWidth: 0.1, backgroundColor: exhortDisabled ? '#c7c7c2' : 'green', borderRadius: 0, color: 'white', marginRight: 15}}>
         Դիմել
       </button>
         }
        
-        <button disabled={user?.data?.user?.state === 'WAITING'} onClick={confirm} style={{borderWidth: 0.1, backgroundColor: user?.data?.user?.state === 'WAITING' ? '#888C6B' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
+        <button disabled={goBreakDisabled} onClick={confirmGoBreak} style={{borderWidth: 0.1, backgroundColor:  goBreakDisabled ? '#c7c7c2' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
         Գնալ ընդմիջման
         </button>
-        <button disabled={user?.data?.user?.state !== 'IN_BREAK'} onClick={confirm} style={{borderWidth: 0.1, backgroundColor: user?.data?.user?.state !== 'IN_BREAK' ? '#888C6B' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
+        <button disabled={cancelBreakDisabled} onClick={confirmCancelBreak} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
         Վերադառնալ ընդմիջումից
         </button>
         <button onClick={cancel} style={{borderWidth: 0.1, backgroundColor: 'red', borderRadius: 0, color: 'white'}}>
@@ -213,8 +252,9 @@ console.log('tableeeeeeeeeeeee');
         </button>
         
       </div>
+      }
       <div style={{position: 'absolute', right: 15, top: 5}}>
-        <button onClick={logOut} style={{borderWidth: 0, cursor: 'pointer', marginLeft: 15, backgroundColor: '#d9cfcd', borderRadius: 0, color: 'white'}}>
+        <button onClick={logOut} style={{borderWidth: 0, cursor: 'pointer', marginLeft: 15, backgroundColor: '#FDDA0D', borderRadius: 25, color: 'white'}}>
           Log Out
         </button>
         </div>
@@ -241,8 +281,8 @@ console.log('tableeeeeeeeeeeee');
           // },
           {
             accessor: 'nameSurname',
-            render: ({ lastName, name }) => (
-              <Text weight={700} style={ { padding: 10}} color={'black'}>
+            render: ({ lastName, name, jobType }) => (
+              <Text weight={700} style={ { padding: 10}} color={jobType === 'CALL' ? 'blue' : '#955c23'}>
                 {name[0].toUpperCase() + name.slice(1)} {lastName  && lastName[0].toUpperCase() + lastName.slice(1)}
               </Text>
             ),
@@ -274,7 +314,7 @@ console.log('tableeeeeeeeeeeee');
         { accessor: 'message',
         render: ({ message }) => (
           <Text weight={700}>
-            {user?.data?.user?.id === user?.data?.messageId?.userId && message}
+            {isAdminOrYourMessage && message}
           </Text>
         ),
         },
@@ -287,10 +327,14 @@ console.log('tableeeeeeeeeeeee');
         },
       // applyDate
         ]}
-        onRowClick={({ email }) => {
+        onRowClick={({ email, state }) => {
           if(isAdmin){
             console.log('fsdfsdfsdfsdfsdfsd');
             adminApply(email)
+            if(state === 'READY'){
+              
+              adminCancelReady(email)
+            }
           }
         } 
           // alert(`You clicked on ${name}, president born in ${email}.`)

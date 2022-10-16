@@ -3,7 +3,7 @@ import useAuth from '../hooks/useAuth';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import axios from '../api/axios';
-const LOGIN_URL = 'http://localhost:3000/users/login';
+const LOGIN_URL = 'https://digitain-coffee-break.herokuapp.com/users/login';
 
 const Login = () => {
     const { setAuth } = useAuth();
@@ -26,24 +26,31 @@ const Login = () => {
     useEffect(() => {
         setErrMsg('');
     }, [user, pwd])
+    const [isRadio, setIsRadio] = useState(1);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        let jobType;
+        if(isRadio === 1) {
+            jobType = 'CALL'
+        }
+        if(isRadio === 2) {
+            jobType = 'CHAT'
+        }
         try {
             const response = await axios.post(LOGIN_URL,
-                JSON.stringify({ email: user, password : pwd }),
+                JSON.stringify({ email: user, password : pwd, jobType }),
                 {
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
                     withCredentials: false
                 }
             );
-            console.log(JSON.stringify(response?.data));
             const accessToken = response?.data?.accessToken;
             localStorage.setItem('accessToken', JSON.stringify(accessToken));
             setUser('');
             setPwd('');
             navigate("/table", { replace: true });
+            
         } catch (err) {
             if (!err?.response) {
                 setErrMsg('No Server Response');
@@ -83,6 +90,29 @@ const Login = () => {
                     value={pwd}
                     required
                 />
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                <label htmlFor="username">Call:</label>
+                <input
+                type='radio'
+                id='radio1'
+                style={{marginTop: 20, marginLeft: 10}}
+                value='1'
+                onChange={(e) => setIsRadio(1)}
+                checked={isRadio === 1}
+                />
+                </div>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                <label htmlFor="username">Chat:</label>
+                <input
+                type='radio'
+                style={{marginTop: 20, marginLeft: 10}}
+                id='radio2'
+                value='1'
+                onChange={(e) => setIsRadio(2)}
+                checked={isRadio === 2}
+                />
+                </div>
+               
                 <button>Sign In</button>
             </form>
             <p>

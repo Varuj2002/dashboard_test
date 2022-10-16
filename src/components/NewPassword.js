@@ -7,15 +7,21 @@ import ModalEmail from "./Modal";
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = 'http://localhost:3000/users/register';
-
+const NEW_PASSWORD = 'https://digitain-coffee-break.herokuapp.com/users/reset_password';
 
 
 const NewPassword = () => {
-    const userRef = useRef();
+    let REGEX_EMAIL = new RegExp('@[digitain]+\.[com]');
+    // const userRef = useRef();
     const errRef = useRef();
+    const [homeText, setHomeText] = useState('');
 
     const [user, setUser] = useState('');
+    const [lastname, setLastname] = useState('');
+    const [validName, setValidName] = useState(false);
+    const [validEmail, setValidEmail] = useState(false);
+    const [validLastName, setValidLastName] = useState(false);
+    const [userFocus, setUserFocus] = useState(false);
 
     const [pwd, setPwd] = useState('');
     const [validPwd, setValidPwd] = useState(false);
@@ -27,10 +33,24 @@ const NewPassword = () => {
 
     const [errMsg, setErrMsg] = useState('');
     const [success, setSuccess] = useState(false);
+    const [email, setEmail] = useState('')
+    const [openModal, setOpenModal] = useState(false)
+
+    // useEffect(() => {
+    //     userRef.current.focus();
+    // }, [])
 
     useEffect(() => {
-        userRef.current.focus();
-    }, [])
+        setValidName(USER_REGEX.test(user));
+    }, [user])
+
+    useEffect(()=>{
+        setValidEmail(REGEX_EMAIL.test(email))
+    }, [email])
+
+    useEffect(() => {
+        setValidLastName(USER_REGEX.test(lastname));
+    }, [lastname])
 
     useEffect(() => {
         setValidPwd(PWD_REGEX.test(pwd));
@@ -43,25 +63,18 @@ const NewPassword = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const v1 = USER_REGEX.test(user);
-        const v2 = PWD_REGEX.test(pwd);
-        if (!v1 || !v2) {
-            setErrMsg("Invalid Entry");
-            return;
-        }
         try {
-            const response = await axios.post(REGISTER_URL,
+            const response = await axios.post(NEW_PASSWORD,
                 JSON.stringify(
-                    {password: pwd, email: JSON.parse(localStorage.getItem('changePasswordEmal'))},
+                    {password: pwd, email: localStorage.getItem('changePasswordEmal')},
                     ),
                 {
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
                     withCredentials: false
                 }
             );
-
-            console.log(JSON.stringify(response?.data));
             localStorage.removeItem('changePasswordEmal');
+
             setSuccess(true);
             setPwd('');
             setMatchPwd('');
@@ -73,12 +86,13 @@ const NewPassword = () => {
             } else {
                 setErrMsg('Registration Failed')
             }
-            errRef.current.focus();
+            // errRef.current.focus();
         }
     }
 
     return (
         <>
+        <ModalEmail setHomeText={setHomeText} openModal={openModal} email={email} setOpenModal={setOpenModal} />
             {success ? (
                 <section>
                     <h1>Success!</h1>
@@ -89,8 +103,9 @@ const NewPassword = () => {
             ) : (
                 <section>
                     <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-                    <h1>Change Password</h1>
+                    <h1>New Password</h1>
                     <form onSubmit={handleSubmit}>
+                   
                         <label htmlFor="password">
                             Password:
                             <FontAwesomeIcon icon={faCheck} className={validPwd ? "valid" : "hide"} />
@@ -113,8 +128,6 @@ const NewPassword = () => {
                             Must include uppercase and lowercase letters, a number and a special character.<br />
                             Allowed special characters: <span aria-label="exclamation mark">!</span> <span aria-label="at symbol">@</span> <span aria-label="hashtag">#</span> <span aria-label="dollar sign">$</span> <span aria-label="percent">%</span>
                         </p>
-
-
                         <label htmlFor="confirm_pwd">
                             Confirm Password:
                             <FontAwesomeIcon icon={faCheck} className={validMatch && matchPwd ? "valid" : "hide"} />
@@ -136,14 +149,8 @@ const NewPassword = () => {
                             Must match the first password input field.
                         </p> */}
 
-                        <button disabled={!validPwd || !validMatch ? true : false}>Change Password</button>
+                        <button disabled={ !validPwd || !validMatch ? true : false}>Change Password</button>
                     </form>
-                    {/* <p>
-                        Already registered?<br />
-                        <span className="line">
-                            <Link to="/">Sign In</Link>
-                        </span>
-                    </p> */}
                 </section>
             )}
         </>

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import PinInput from 'react-pin-input';
 import Modal from 'react-modal';
 import axios from '../api/axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const customStyles = {
     content: {
@@ -15,39 +15,57 @@ const customStyles = {
       transform: 'translate(-50%, -50%)',
     },
   };
-
+// /users/register/confirm /users/confirm_forgot_password
   // JSON.parse(localStorage.getItem('changePasswordEmal'))
 const ModalEmail = ({ openModal, email, setOpenModal, setHomeText }) => {
-const CODE_URL = 'http://localhost:3000/users/register/confirm';
+const CODE_URL_FORGOT = 'https://digitain-coffee-break.herokuapp.com/users/confirm_forgot_password';
+const CODE_URL = 'https://digitain-coffee-break.herokuapp.com/users/register/confirm';
+const emailForgot = localStorage.getItem('changePasswordEmal');
+const navigate = useNavigate();
 
 
    const [code, setCode] = useState('')
    const onSubmit = async () => {
-    console.log(code, "5555555");
     try {
       const response = await axios.post(CODE_URL,
           JSON.stringify(
               { confirmNumber: code, email },
               ),
           {
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
               withCredentials: false
           }
       );
-      console.log(JSON.stringify(response?.data), 'response?.data');
       if(response?.data === "OK"){
         setOpenModal(false)
         setHomeText('Sign In')
-        // <Link to={{
-        //   pathname: "/table",
-        // }}/>
       }
   } catch (err) {
-    console.log(1651111);
-    <Link to="/table" replace />
       console.log(err, 'eeeeee');
   }
    }
+
+   const onSubmitForgot = async () => {
+    try {
+      const response = await axios.post(CODE_URL_FORGOT,
+          JSON.stringify(
+              { confirmNumber: code, email: emailForgot },
+              ),
+          {
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': true },
+              withCredentials: false
+          }
+      );
+      if(response?.data === "OK"){
+        setOpenModal(false)
+        navigate("/newPassword", { replace: true });
+        setHomeText('Sign In')
+      }
+  } catch (err) {
+
+  }
+   }
+   
   return (
     <div>
     <Modal
@@ -77,7 +95,7 @@ const CODE_URL = 'http://localhost:3000/users/register/confirm';
         />
       </div>
       <div style={{display: 'flex', justifyContent: 'center'}}>
-       <button onClick={onSubmit} style={{backgroundColor: 'white', borderRadius: 5, paddingLeft: 20, paddingRight: 20}}>Send</button> 
+       <button onClick={!!emailForgot ? onSubmitForgot : onSubmit} style={{backgroundColor: 'white', borderRadius: 5, paddingLeft: 20, paddingRight: 20}}>Send</button> 
       </div>
     </Modal>
   </div>
