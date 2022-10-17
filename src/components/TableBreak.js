@@ -217,6 +217,7 @@ const  exhortDisabled = user?.data?.user?.state !== null;
 const cancelBreakDisabled = user?.data?.user?.state !== 'IN_BREAK';
 const goBreakDisabled = user?.data?.user?.state === 'WAITING' || user?.data?.user?.state === null || user?.data?.user?.state === 'IN_BREAK'
 console.log(user?.data?.user?.state,'tableeeeeeeeeeeee');
+const inBreak = () => {}
   const isAdminOrYourMessage = user?.data?.user?.id === user?.data?.messageId?.userId || isAdmin
   if(isLogin){
     return (
@@ -329,11 +330,14 @@ console.log(user?.data?.user?.state,'tableeeeeeeeeeeee');
         ]}
         onRowClick={({ email, state }) => {
           if(isAdmin){
-            console.log('fsdfsdfsdfsdfsdfsd');
+            if(state === 'WAITING'){
             adminApply(email)
-            if(state === 'READY'){
-              
+            }
+            if(state === 'READY'){        
               adminCancelReady(email)
+            }
+            if(state === 'IN_BREAK'){
+              inBreak()
             }
           }
         } 
