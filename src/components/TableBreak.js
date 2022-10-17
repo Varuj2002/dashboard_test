@@ -30,7 +30,7 @@ export default function TableBreak() {
   const [user, setUser] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const isLogin = !!JSON.parse(localStorage.getItem('accessToken'));
-
+  const [extraIsSuccess, setExtraIsSuccess] = useState(true);
  
   const getUsersTable = () => {
     axios.get(`https://digitain-coffee-break.herokuapp.com/users/table`)
@@ -204,6 +204,7 @@ const sendMessage = () => {
   .then(res => {
     if(res?.statusText === 'OK'){
       getUsersTable()
+      setExtraIsSuccess(false)
       setMessage('')
       messageRef.current.value = ''
     }
@@ -215,11 +216,11 @@ const sendMessage = () => {
 }
 const  exhortDisabled = user?.data?.user?.state !== null;
 const cancelBreakDisabled = user?.data?.user?.state !== 'IN_BREAK';
+
 const goBreakDisabled = user?.data?.user?.state === 'WAITING' || user?.data?.user?.state === null || user?.data?.user?.state === 'IN_BREAK'
-console.log(user?.data?.user?.state,'tableeeeeeeeeeeee');
 const inBreak = () => {}
   const isAdminOrYourMessage = user?.data?.user?.id === user?.data?.messageId?.userId || isAdmin
-  if(isLogin){
+  if(!isLogin){
     return (
       <>
       {!isAdmin && <div style={{ position: 'absolute', top: 15, left: 15}}>
@@ -233,7 +234,7 @@ const inBreak = () => {}
         </div>}
       {!isAdmin && <div style={{ position: 'absolute', top: "10%", right: '15%'}}>
         {user?.data?.user?.breakTime === 0 ? 
-           <button onClick={exhort} style={{borderWidth: 0.1, backgroundColor: 'red', borderRadius: 0, color: 'white', marginRight: 15}}>
+           <button disabled={extraIsSuccess} onClick={exhort} style={{borderWidth: 0.1, backgroundColor: exhortDisabled ? '#c7c7c2' : 'green', borderRadius: 0, color: 'white', marginRight: 15}}>
            Extra
          </button>
         :
@@ -248,7 +249,7 @@ const inBreak = () => {}
         <button disabled={cancelBreakDisabled} onClick={confirmCancelBreak} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
         Վերադառնալ ընդմիջումից
         </button>
-        <button onClick={cancel} style={{borderWidth: 0.1, backgroundColor: 'red', borderRadius: 0, color: 'white'}}>
+        <button disabled={cancelBreakDisabled} onClick={cancel} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : 'red', borderRadius: 0, color: 'white'}}>
         Չեղարկել
         </button>
         
@@ -315,7 +316,7 @@ const inBreak = () => {}
         { accessor: 'message',
         render: ({ message }) => (
           <Text weight={700}>
-            {isAdminOrYourMessage && message}
+            {isAdmin && message} 
           </Text>
         ),
         },
