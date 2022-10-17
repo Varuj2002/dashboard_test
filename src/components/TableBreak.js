@@ -220,7 +220,7 @@ const cancelBreakDisabled = user?.data?.user?.state !== 'IN_BREAK';
 const goBreakDisabled = user?.data?.user?.state === 'WAITING' || user?.data?.user?.state === null || user?.data?.user?.state === 'IN_BREAK'
 const inBreak = () => {}
   const isAdminOrYourMessage = user?.data?.user?.id === user?.data?.messageId?.userId || isAdmin
-  if(!isLogin){
+  if(isLogin){
     return (
       <>
       {!isAdmin && <div style={{ position: 'absolute', top: 15, left: 15}}>
