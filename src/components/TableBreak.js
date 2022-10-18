@@ -216,6 +216,8 @@ const sendMessage = () => {
 }
 const  exhortDisabled = user?.data?.user?.state !== null;
 const cancelBreakDisabled = user?.data?.user?.state !== 'IN_BREAK';
+const cancelBreakDis = user?.data?.user?.state !== 'WAITING';
+
 
 const goBreakDisabled = user?.data?.user?.state === 'WAITING' || user?.data?.user?.state === null || user?.data?.user?.state === 'IN_BREAK'
 const inBreak = () => {}
@@ -249,7 +251,7 @@ const inBreak = () => {}
         <button disabled={cancelBreakDisabled} onClick={confirmCancelBreak} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
         Վերադառնալ ընդմիջումից
         </button>
-        <button disabled={cancelBreakDisabled} onClick={cancel} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : 'red', borderRadius: 0, color: 'white'}}>
+        <button disabled={cancelBreakDis} onClick={cancel} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : 'red', borderRadius: 0, color: 'white'}}>
         Չեղարկել
         </button>
         
