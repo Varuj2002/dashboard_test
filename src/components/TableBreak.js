@@ -104,10 +104,8 @@ const getCurrent = () => {
     config
   )
   .then(res => {
-    console.log(res.data, 'res.datares.data');
     if(res.data.user.userRoll === "ADMIN"){
       setIsAdmin(true)
-      console.log('adminnnnnnn');
     } ;
     setUser(res)
   })
@@ -127,7 +125,6 @@ const cancel = () => {
     config
   )
   .then(res => {
-    console.log(res, 'resssss');
     if(res.data === 'OK') getUsersTable()   
   })
   .catch((err) => {
@@ -150,9 +147,7 @@ const adminApply = async (email) => {
             withCredentials: false
         }
     );
-    getUsersTable()
-    console.log(JSON.stringify(response?.data));
-    
+    getUsersTable()    
 } catch (err) {
     
   }
@@ -169,9 +164,7 @@ const adminCancelReady = async (email) => {
             withCredentials: false
         }
     );
-    getUsersTable()
-    console.log(JSON.stringify(response?.data));
-    
+    getUsersTable()    
 } catch (err) {
     
   }
@@ -184,7 +177,6 @@ const [isMessage, setIsMessage] = useState(true)
 const messageRef = useRef();
 
 useEffect(()=>{
-  console.log(message, 'message');
   if(!!message){
     setIsMessage(false)
     return
@@ -212,12 +204,10 @@ const sendMessage = () => {
   .catch((err) => {
     console.log(err, 'rrttt');
   })
-  console.log(message, 'message');
 }
 const  exhortDisabled = user?.data?.user?.state !== null;
 const cancelBreakDisabled = user?.data?.user?.state !== 'IN_BREAK';
 const cancelBreakDis = user?.data?.user?.state !== 'WAITING';
-
 
 const goBreakDisabled = user?.data?.user?.state === 'WAITING' || user?.data?.user?.state === null || user?.data?.user?.state === 'IN_BREAK'
 const inBreak = () => {}
@@ -236,7 +226,7 @@ const inBreak = () => {}
         </div>}
       {!isAdmin && <div style={{ position: 'absolute', top: "10%", right: '15%'}}>
         {user?.data?.user?.breakTime === 0 ? 
-           <button disabled={extraIsSuccess} onClick={exhort} style={{borderWidth: 0.1, backgroundColor: exhortDisabled ? '#c7c7c2' : 'green', borderRadius: 0, color: 'white', marginRight: 15}}>
+           <button disabled={extraIsSuccess} onClick={exhort} style={{borderWidth: 0.1, backgroundColor: extraIsSuccess ? '#c7c7c2' : 'green', borderRadius: 0, color: 'white', marginRight: 15}}>
            Extra
          </button>
         :
@@ -251,7 +241,7 @@ const inBreak = () => {}
         <button disabled={cancelBreakDisabled} onClick={confirmCancelBreak} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : '#F7A91C', borderRadius: 0, color: 'white', marginRight: 15}}>
         Վերադառնալ ընդմիջումից
         </button>
-        <button disabled={cancelBreakDis} onClick={cancel} style={{borderWidth: 0.1, backgroundColor: cancelBreakDisabled ? '#c7c7c2' : 'red', borderRadius: 0, color: 'white'}}>
+        <button disabled={cancelBreakDis} onClick={cancel} style={{borderWidth: 0.1, backgroundColor: cancelBreakDis ? '#c7c7c2' : 'red', borderRadius: 0, color: 'white'}}>
         Չեղարկել
         </button>
         
