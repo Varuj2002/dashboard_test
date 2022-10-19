@@ -225,7 +225,7 @@ const inBreak = () => {}
 
         </div>}
       {!isAdmin && <div style={{ position: 'absolute', top: "10%", right: '15%'}}>
-        {user?.data?.user?.breakTime === 0 ? 
+        {user?.data?.user?.breakTime <= 0 ? 
            <button disabled={extraIsSuccess} onClick={exhort} style={{borderWidth: 0.1, backgroundColor: extraIsSuccess ? '#c7c7c2' : 'green', borderRadius: 0, color: 'white', marginRight: 15}}>
            Extra
          </button>
