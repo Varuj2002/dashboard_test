@@ -132,6 +132,7 @@ const cancel = () => {
   })
 }
 const logOut = () => {
+  cancel();
   localStorage.removeItem('accessToken');
   window.onbeforeunload = function() { return "Your work will be lost."};
   navigate("/login");
@@ -170,7 +171,6 @@ const adminCancelReady = async (email) => {
   }
 }
 
-// /users/dashboard/cancel_ready
 
 const [message, setMessage] = useState('');
 const [isMessage, setIsMessage] = useState(true)
@@ -260,19 +260,8 @@ const inBreak = () => {}
         borderRadius="sm"
         withColumnBorders
         striped
-        // highlightOnHover
-        // provide data
         records={dat}
-        // define columns
         columns={[
-          // {
-          //   accessor: 'name',
-          //   // this column has a custom title
-          //   // title: '#',
-          //   // right-align column
-          //   color: 'blue'
-          //   // textAlignment: 'center',
-          // },
           {
             accessor: 'nameSurname',
             render: ({ lastName, name, jobType }) => (
@@ -289,15 +278,6 @@ const inBreak = () => {}
               </Text>
             ),
           },
-          
-          // {
-          //   accessor: 'email',
-          //   render: ({ email }) => (
-          //     <Text weight={700} style={{ paddingTop: 10, paddingBottom: 10, paddingLeft: 20, paddingRight: 20 }} color={'black'}>
-          //       {email}
-          //     </Text>
-          //   ),
-          // },
           { accessor: 'time',
           render: ({ breakTime }) => (
             <Text weight={700} color={breakTime < 25 ? 'red' : 'green'}>
@@ -319,7 +299,13 @@ const inBreak = () => {}
             </Text>
           ),
         },
-      // applyDate
+        { accessor: 'breakDate',
+          render: ({ inBreakDate }) => (
+            <Text weight={700}>
+              {inBreakDate}
+            </Text>
+          ),
+        },
         ]}
         onRowClick={({ email, state }) => {
           if(isAdmin){
@@ -334,7 +320,6 @@ const inBreak = () => {}
             }
           }
         } 
-          // alert(`You clicked on ${name}, president born in ${email}.`)
         }
       />
       </>

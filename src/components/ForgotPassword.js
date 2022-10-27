@@ -99,12 +99,6 @@ const ForgotPassword = () => {
 
                         <button disabled={!validEmail ? true : false}>Take Code</button>
                     </form>
-                    {/* <p>
-                        Already registered?<br />
-                        <span className="line">
-                            <Link to="/">Sign In</Link>
-                        </span>
-                    </p> */}
                 </section>
             )}
         </>
